@@ -1,23 +1,39 @@
 import { Product } from '@/types/type';
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
 interface ProductCardProps {
     product: Product;
     size?: 'small' | 'large'; 
     onPress?: (id: string) => void;
+    onEdit?: (id: string) => void;
+    onDelete?: (id: string, imageUrl: string) => void;
 }
 
 export const ProductCard = ({ 
     product, 
     size = 'small',
-    onPress 
+    onPress,
+    onEdit,
+    onDelete,
 }: ProductCardProps) => {
     const cardStyle = size === 'small' ? styles.cardSmall : styles.cardLarge;
     const imageStyle = size === 'small' ? styles.productImageSmall : styles.productImageLarge;
+    const handleLongPress = () => {
+        Alert.alert(
+            "Action", 
+            "Chọn hành động", 
+            [
+                { text: "Chỉnh sửa", onPress: () => onEdit && onEdit(product.id) },
+                { text: "Xoá", onPress: () => onDelete && onDelete(product.id, product.imageUrl) },
+                { text: "Hủy", style: "cancel" }
+            ]
+        );
+    };
     
     return (
-        <View style={[styles.card, cardStyle]}>
+        <TouchableOpacity style={[styles.card, cardStyle]} onLongPress={handleLongPress} activeOpacity={0.9}>
+            
             <Image
                 source={{ uri: product.imageUrl }} 
                 style={[styles.productImage, imageStyle]}
@@ -32,7 +48,7 @@ export const ProductCard = ({
                 </TouchableOpacity>
                 <Text style={styles.price}>¥{product.price}</Text>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 };
 
