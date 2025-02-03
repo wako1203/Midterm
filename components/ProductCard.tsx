@@ -1,6 +1,15 @@
 import { Product } from '@/types/type';
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { 
+    View, 
+    Text, 
+    Image, 
+    TouchableOpacity, 
+    StyleSheet, 
+    Alert, 
+    Platform, 
+    Pressable 
+} from 'react-native';
 
 interface ProductCardProps {
     product: Product;
@@ -12,28 +21,56 @@ interface ProductCardProps {
 
 export const ProductCard = ({ 
     product, 
-    size = 'small',
+    size = 'large',
     onPress,
     onEdit,
     onDelete,
 }: ProductCardProps) => {
     const cardStyle = size === 'small' ? styles.cardSmall : styles.cardLarge;
     const imageStyle = size === 'small' ? styles.productImageSmall : styles.productImageLarge;
-    const handleLongPress = () => {
+
+    const handleAction = () => {
         Alert.alert(
-            "Action", 
-            "Chọn hành động", 
+            "Hành động", 
+            "Chọn hành động bạn muốn thực hiện", 
             [
-                { text: "Chỉnh sửa", onPress: () => onEdit && onEdit(product.id) },
-                { text: "Xoá", onPress: () => onDelete && onDelete(product.id, product.imageUrl) },
-                { text: "Hủy", style: "cancel" }
+                { 
+                    text: "Chỉnh sửa", 
+                    onPress: () => onEdit && onEdit(product.id) 
+                },
+                { 
+                    text: "Xóa", 
+                    onPress: () => onDelete && onDelete(product.id, product.imageUrl) 
+                },
+                { 
+                    text: "Hủy", 
+                    style: "cancel" 
+                }
             ]
         );
     };
-    
+
+    const handleContextMenu = (e: any) => {
+        if (Platform.OS === 'web') {
+            e.preventDefault(); // Ngăn menu chuột phải mặc định trên web
+            handleAction();
+        }
+    };
+
     return (
-        <TouchableOpacity style={[styles.card, cardStyle]} onLongPress={handleLongPress} activeOpacity={0.9}>
-            
+        <Pressable
+            style={({ pressed }) => [
+                styles.card, 
+                cardStyle, 
+                pressed && { opacity: 0.8 }
+            ]}
+            onPress={onPress ? () => onPress(product.id) : undefined}
+            onLongPress={handleAction} // Nhấn giữ trên di động
+            onStartShouldSetResponder={(e) => {
+                if (Platform.OS === 'web') handleContextMenu(e.nativeEvent);
+                return false;
+            }}
+        >
             <Image
                 source={{ uri: product.imageUrl }} 
                 style={[styles.productImage, imageStyle]}
@@ -48,7 +85,7 @@ export const ProductCard = ({
                 </TouchableOpacity>
                 <Text style={styles.price}>¥{product.price}</Text>
             </View>
-        </TouchableOpacity>
+        </Pressable>
     );
 };
 

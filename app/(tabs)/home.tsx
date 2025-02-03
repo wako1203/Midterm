@@ -7,20 +7,20 @@ import {
   SafeAreaView,
   Dimensions,
   StatusBar,
-  TouchableOpacity // Changed from react-native-gesture-handler to react-native
+  TouchableOpacity 
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProductCard } from '@/components/ProductCard';
 import { ref, onValue, remove } from 'firebase/database';
-import { database, storage } from '@/firebase';
+import { auth, database, storage } from '@/firebase';
 import { Product } from '@/types/type';
 import { router } from "expo-router";
 import { ref as storageRef, deleteObject } from 'firebase/storage';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-const { width } = Dimensions.get('window');
 
+const { width } = Dimensions.get('window');
 
 const HomeScreen = () => {
     const [products, setProducts] = useState<Product[]>([]);
@@ -43,14 +43,24 @@ const HomeScreen = () => {
 
     const onAddProductPress = () => {
         router.push('/add');
-    }
+    };
 
     const onDeleteProduct = async (productId: string, imageUrl: string) => {
         const productRef = ref(database, `/products/${productId}`);
         await remove(productRef);
         const imageRef = storageRef(storage, `images/${productId}`);
         await deleteObject(imageRef);
-    }
+    };
+
+    // Handle Logout
+    const handleLogout = async () => {
+        try {
+            await auth.signOut();
+            router.replace("/");
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
@@ -69,17 +79,25 @@ const HomeScreen = () => {
                     </View>
                 </LinearGradient>
 
+                {/* Add the Logout Button */}
+                <TouchableOpacity
+                    style={styles.logoutButton}
+                    onPress={handleLogout}
+                    activeOpacity={0.7}
+                >
+                    <MaterialIcons name="logout" size={24} color="#fff" />
+                </TouchableOpacity>
+
                 <ScrollView style={styles.scrollView}>
                     <View style={styles.grid}>
                         {products.map((product) => (
-                                <ProductCard 
-                                    key={product.id}
-                                    product={product} 
-                                    size="large" 
-                                    onPress={() => onProductPress(product.id)} 
-                                    onDelete={onDeleteProduct}
-                                />
-
+                            <ProductCard 
+                                key={product.id}
+                                product={product} 
+                                size="large" 
+                                onPress={() => onProductPress(product.id)} 
+                                onDelete={onDeleteProduct}
+                            />
                         ))}
                     </View>
                 </ScrollView>
@@ -91,6 +109,7 @@ const HomeScreen = () => {
                 >
                     <MaterialIcons name="add" size={24} color="#fff" />
                 </TouchableOpacity>
+                
             </SafeAreaView>
         </GestureHandlerRootView>
     );
@@ -153,6 +172,15 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.27,
         shadowRadius: 4.65,
+    },
+    logoutButton: {
+        position: 'absolute',
+        top: 40,
+        right: 20,
+        backgroundColor: '#1976D2',
+        borderRadius: 50,
+        padding: 12,
+        elevation: 5,
     },
 });
 
