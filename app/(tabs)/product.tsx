@@ -364,6 +364,7 @@ const styles = StyleSheet.create({
     sizeButton: {
         flex: 1,
         paddingVertical: 12,
+        paddingHorizontal: 16,
         borderRadius: 12,
         borderWidth: 1,
         borderColor: '#ddd',
@@ -399,6 +400,7 @@ const styles = StyleSheet.create({
         lineHeight: 24,
     },
     buyButtonContainer: {
+        borderRadius: 12,
         padding: 20,
         paddingTop: 0,
     },
