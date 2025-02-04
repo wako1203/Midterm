@@ -51,6 +51,12 @@ const HomeScreen = () => {
         const imageRef = storageRef(storage, `images/${productId}`);
         await deleteObject(imageRef);
     };
+    const onEditProduct = (productId: string) => {
+        router.push({
+            pathname: '/edit',
+            params: { id: productId },
+        });
+    };
 
     // Handle Logout
     const handleLogout = async () => {
@@ -97,6 +103,7 @@ const HomeScreen = () => {
                                 size="large" 
                                 onPress={() => onProductPress(product.id)} 
                                 onDelete={onDeleteProduct}
+                                onEdit={onEditProduct}
                             />
                         ))}
                     </View>
